@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Crawler')}"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap">
+  <div th:replace="~{fragments/layout :: flash}"></div>
+  <div class="actions" style="justify-content:space-between;margin-bottom:12px">
+    <h1 style="margin:0">Price crawler</h1>
+    <div class="actions">
+      <form th:action="@{/admin/crawl/run-all}" method="post"><button class="btn" type="submit" th:disabled="${running}">Run all enabled</button></form>
+      <a class="btn secondary" th:href="@{/admin/crawl/sources/new}">Add source</a>
+    </div>
+  </div>
+  <p class="muted">Sources run automatically on the configured schedule. Public APIs are read directly; HTML pages are scraped with the selectors you configure, and only where the site's robots.txt allows it.</p>
+
+  <div class="card table-wrap" style="padding:0">
+    <table>
+      <thead><tr><th>Source</th><th>Type</th><th>Last run</th><th></th></tr></thead>
+      <tbody>
+        <tr th:if="${sources.isEmpty()}"><td colspan="4" class="muted">No sources yet.</td></tr>
+        <tr th:each="s : ${sources}">
+          <td><strong th:text="${s.name}">Linode public API</strong> <span class="badge badge-warn" th:if="${!s.enabled}">Disabled</span>
+            <div class="muted small" th:text="${s.provider.name} + ' · ' + ${s.url}">url</div></td>
+          <td th:text="${s.type.label}">API</td>
+          <td><span th:if="${s.lastRunAt == null}" class="muted">never</span>
+            <span th:if="${s.lastRunAt != null}">
+              <span class="badge" th:classappend="${s.lastStatus == 'SUCCESS'} ? 'badge-ok' : 'badge-bad'" th:text="${s.lastStatus}">SUCCESS</span>
+              <span class="muted small" th:text="${@ui.ago(s.lastRunAt)}">1 h ago</span></span></td>
+          <td class="nowrap">
+            <form class="inline-form" th:action="@{/admin/crawl/sources/{id}/run(id=${s.id})}" method="post"><button class="btn small" type="submit">Run now</button></form>
+            <form class="inline-form" th:action="@{/admin/crawl/sources/{id}/preview(id=${s.id})}" method="post"><button class="btn small secondary" type="submit">Test</button></form>
+            <a class="btn small secondary" th:href="@{/admin/crawl/sources/{id}/edit(id=${s.id})}">Edit</a>
+            <form class="inline-form" th:action="@{/admin/crawl/sources/{id}/toggle(id=${s.id})}" method="post"><button class="btn small secondary" type="submit" th:text="${s.enabled} ? 'Disable' : 'Enable'">Disable</button></form>
+            <form class="inline-form" th:action="@{/admin/crawl/sources/{id}/delete(id=${s.id})}" method="post" onsubmit="return confirm('Remove this source?')"><button class="btn small danger" type="submit">Remove</button></form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 style="margin-top:28px">Run history</h2>
+  <div class="card table-wrap" style="padding:0">
+    <table>
+      <thead><tr><th>When</th><th>Source</th><th>Status</th><th>Found</th><th>New</th><th>Updated</th><th>Skipped</th><th>Details</th></tr></thead>
+      <tbody>
+        <tr th:if="${runs.isEmpty()}"><td colspan="8" class="muted">Nothing has run yet.</td></tr>
+        <tr th:each="r : ${runs}">
+          <td class="nowrap" th:text="${@ui.when(r.startedAt)}">date</td>
+          <td th:text="${r.sourceName}">source</td>
+          <td><span class="badge" th:classappend="${r.status.name() == 'SUCCESS'} ? 'badge-ok' : (${r.status.name() == 'PARTIAL'} ? 'badge-warn' : 'badge-bad')" th:text="${r.status}">SUCCESS</span></td>
+          <td th:text="${r.plansFound}">0</td><td th:text="${r.plansCreated}">0</td><td th:text="${r.plansUpdated}">0</td><td th:text="${r.plansSkipped}">0</td>
+          <td class="small muted" th:text="${r.message}">message</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

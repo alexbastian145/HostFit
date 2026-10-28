@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:hostfit-test;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+  thymeleaf:
+    cache: false
+
+hostfit:
+  admin:
+    username: admin
+    password: test-password
+  crawler:
+    enabled: false
+    allow-private-hosts: true
+    respect-robots: false
+  seed:
+    enabled: true

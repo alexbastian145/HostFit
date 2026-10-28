@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${title} + ' · HostFit'">HostFit</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header class="site-header" th:fragment="nav">
+  <div class="wrap">
+    <a class="logo" th:href="@{/}">Host<span>Fit</span></a>
+    <nav aria-label="Main">
+      <a th:href="@{/}" th:classappend="${path == '/'} ? 'active'">Find a plan</a>
+      <a th:href="@{/plans}" th:classappend="${path != null and path.startsWith('/plans')} ? 'active'">Browse plans</a>
+      <a th:href="@{/about}" th:classappend="${path == '/about'} ? 'active'">How it works</a>
+      <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}" th:classappend="${path != null and path.startsWith('/admin')} ? 'active'">Admin</a>
+    </nav>
+    <form sec:authorize="hasRole('ADMIN')" th:action="@{/logout}" method="post"><button class="linklike" type="submit">Log out</button></form>
+    <a sec:authorize="!isAuthenticated()" class="linklike" th:href="@{/login}">Admin login</a>
+  </div>
+</header>
+<div th:fragment="flash">
+  <div class="alert ok" role="status" th:if="${flash != null}" th:text="${flash}"></div>
+  <div class="alert err" role="alert" th:if="${flashError != null}" th:text="${flashError}"></div>
+</div>
+<footer class="site-footer" th:fragment="footer">
+  <div class="wrap">
+    HostFit · rule-based hosting plan recommender. Prices are indicative; always confirm on the provider's site before buying.
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Hosting plan')}"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap" style="max-width:820px">
+  <h1 th:text="${planId == null} ? 'Add hosting plan' : 'Edit hosting plan'">Add hosting plan</h1>
+  <form class="card" th:object="${form}" method="post" novalidate
+        th:action="${planId == null} ? @{/admin/plans} : @{/admin/plans/{id}(id=${planId})}">
+    <div class="grid two">
+      <div class="field"><label for="providerId">Provider</label>
+        <select th:field="*{providerId}"><option value="">Choose…</option>
+          <option th:each="p : ${providers}" th:value="${p.id}" th:text="${p.name}">Provider</option></select>
+        <div class="field-error" th:errors="*{providerId}"></div></div>
+      <div class="field"><label for="name">Plan name</label><input type="text" th:field="*{name}">
+        <div class="field-error" th:errors="*{name}"></div></div>
+      <div class="field"><label for="planType">Plan type</label>
+        <select th:field="*{planType}"><option value="">Choose…</option>
+          <option th:each="t : ${planTypes}" th:value="${t}" th:text="${t.label}">VPS</option></select>
+        <div class="hint">Shared = many sites on one server · VPS = virtual server · Cloud = dedicated-CPU or managed cloud · Dedicated = whole machine</div>
+        <div class="field-error" th:errors="*{planType}"></div></div>
+      <div class="field"><label for="priceInr">Price per month (₹)</label><input type="number" step="any" th:field="*{priceInr}">
+        <div class="field-error" th:errors="*{priceInr}"></div></div>
+      <div class="field"><label for="vcpu">vCPU</label><input type="number" th:field="*{vcpu}" min="1">
+        <div class="hint">Shared hosts rarely publish this; enter a nominal value (1–2).</div>
+        <div class="field-error" th:errors="*{vcpu}"></div></div>
+      <div class="field"><label for="ramGb">RAM (GB)</label><input type="number" step="any" th:field="*{ramGb}">
+        <div class="field-error" th:errors="*{ramGb}"></div></div>
+      <div class="field"><label for="storageGb">Storage (GB)</label><input type="number" th:field="*{storageGb}" min="1">
+        <div class="field-error" th:errors="*{storageGb}"></div></div>
+      <div class="field"><label for="storageType">Storage type</label><input type="text" th:field="*{storageType}" placeholder="SSD, NVMe…">
+        <div class="field-error" th:errors="*{storageType}"></div></div>
+      <div class="field"><label for="bandwidthGb">Bandwidth (GB / month)</label><input type="number" th:field="*{bandwidthGb}" min="0">
+        <div class="hint">Leave empty if not stated, or tick unmetered.</div>
+        <div class="field-error" th:errors="*{bandwidthGb}"></div></div>
+      <div class="field"><label for="url">Plan page URL</label><input type="url" th:field="*{url}" placeholder="https://…">
+        <div class="field-error" th:errors="*{url}"></div></div>
+    </div>
+    <div class="field actions">
+      <label class="pick"><input type="checkbox" th:field="*{unmetered}"> Unmetered bandwidth</label>
+      <label class="pick"><input type="checkbox" th:field="*{managed}"> Managed by provider</label>
+      <label class="pick"><input type="checkbox" th:field="*{active}"> Active (shown in recommendations)</label>
+    </div>
+    <div class="actions">
+      <button class="btn" type="submit">Save plan</button>
+      <a class="btn secondary" th:href="@{/admin/plans}">Cancel</a>
+    </div>
+  </form>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

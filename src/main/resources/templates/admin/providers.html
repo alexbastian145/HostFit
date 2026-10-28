@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Providers')}"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap">
+  <div th:replace="~{fragments/layout :: flash}"></div>
+  <div class="actions" style="justify-content:space-between;margin-bottom:12px">
+    <h1 style="margin:0">Providers</h1>
+    <a class="btn" th:href="@{/admin/providers/new}">Add provider</a>
+  </div>
+  <div class="card table-wrap" style="padding:0">
+    <table>
+      <thead><tr><th>Name</th><th>Website</th><th>Plans</th><th></th></tr></thead>
+      <tbody>
+        <tr th:each="p : ${providers}">
+          <td><strong th:text="${p.name}">Hostinger</strong> <span class="badge badge-warn" th:if="${!p.active}">Inactive</span>
+            <div class="muted small" th:text="${p.description}">desc</div></td>
+          <td><a th:if="${p.website != null}" th:href="${p.website}" th:text="${p.website}" target="_blank" rel="noopener noreferrer">site</a></td>
+          <td th:text="${planCounts.get(p.id)}">4</td>
+          <td class="nowrap">
+            <a class="btn small secondary" th:href="@{/admin/providers/{id}/edit(id=${p.id})}">Edit</a>
+            <form class="inline-form" th:action="@{/admin/providers/{id}/delete(id=${p.id})}" method="post"
+                  onsubmit="return confirm('Remove this provider?')"><button class="btn small danger" type="submit">Remove</button></form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

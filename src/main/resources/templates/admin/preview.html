@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Test source')}"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap">
+  <h1>Test: <span th:text="${source.name}">Source</span></h1>
+  <p class="muted">Nothing is saved by this test. It shows what the next crawl would read.</p>
+  <div class="alert err" role="alert" th:if="${error != null}" th:text="${error}"></div>
+  <div class="card table-wrap" style="padding:0" th:if="${parsed != null}">
+    <table>
+      <thead><tr><th>Name</th><th>Type</th><th>vCPU</th><th>RAM</th><th>Storage</th><th>Bandwidth</th><th class="right">Price</th></tr></thead>
+      <tbody><tr th:each="p : ${parsed}">
+        <td th:text="${p.name()}">Plan</td><td th:text="${p.planType()}">VPS</td>
+        <td th:text="${p.vcpu() != null} ? ${p.vcpu()} : '—'">1</td>
+        <td th:text="${p.ramGb() != null} ? ${@ui.ram(p.ramGb())} : '—'">1 GB</td>
+        <td th:text="${p.storageGb() != null} ? ${@ui.storage(p.storageGb(), p.storageType())} : '—'">25 GB</td>
+        <td th:text="${p.unmetered()} ? 'Unmetered' : (${p.bandwidthGb() != null} ? ${@ui.num(p.bandwidthGb())} + ' GB' : '—')">1 TB</td>
+        <td class="right nowrap" th:text="${p.currency()} + ' ' + ${p.price()}">USD 5</td></tr></tbody>
+    </table>
+  </div>
+  <p style="margin-top:16px"><a class="btn secondary" th:href="@{/admin/crawl}">← Back</a></p>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

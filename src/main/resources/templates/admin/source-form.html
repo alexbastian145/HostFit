@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Crawl source')}"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap" style="max-width:820px">
+  <h1 th:text="${sourceId == null} ? 'Add crawl source' : 'Edit crawl source'">Add crawl source</h1>
+  <form class="card" th:object="${form}" method="post" novalidate
+        th:action="${sourceId == null} ? @{/admin/crawl/sources} : @{/admin/crawl/sources/{id}(id=${sourceId})}">
+    <div class="grid two">
+      <div class="field"><label for="providerId">Provider</label>
+        <select th:field="*{providerId}"><option value="">Choose…</option>
+          <option th:each="p : ${providers}" th:value="${p.id}" th:text="${p.name}">Provider</option></select>
+        <div class="field-error" th:errors="*{providerId}"></div></div>
+      <div class="field"><label for="name">Name</label><input type="text" th:field="*{name}"><div class="field-error" th:errors="*{name}"></div></div>
+      <div class="field"><label for="type">Source type</label>
+        <select th:field="*{type}"><option th:each="t : ${sourceTypes}" th:value="${t}" th:text="${t.label}">type</option></select>
+        <div class="field-error" th:errors="*{type}"></div></div>
+      <div class="field"><label for="url">URL</label><input type="url" th:field="*{url}" placeholder="https://…"><div class="field-error" th:errors="*{url}"></div></div>
+    </div>
+    <div class="field"><label for="config">Selector config (HTML sources only)</label>
+      <textarea th:field="*{config}" spellcheck="false"></textarea>
+      <div class="hint">JSON. Selectors are relative to each plan card. <code>pricePick</code> chooses which number in the price text to use: first, last or min. Pages built by JavaScript will not work with this source type.</div>
+      <div class="field-error" th:errors="*{config}"></div></div>
+    <div class="field"><label class="pick"><input type="checkbox" th:field="*{enabled}"> Enabled (included in scheduled crawls)</label></div>
+    <div class="actions"><button class="btn" type="submit">Save source</button><a class="btn secondary" th:href="@{/admin/crawl}">Cancel</a></div>
+  </form>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

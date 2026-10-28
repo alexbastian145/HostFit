@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Your recommendations')}"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap">
+  <div th:replace="~{fragments/layout :: flash}"></div>
+
+  <h1>Your recommendations</h1>
+  <p class="muted">
+    <span class="badge" th:text="${search.useCase.label}">E-commerce</span>
+    <span class="badge" th:text="${@ui.num(search.monthlyVisits)} + ' visits/mo'">50,000 visits/mo</span>
+    <span class="badge" th:text="${@ui.num(search.storageGb)} + ' GB storage'">50 GB</span>
+    <span class="badge" th:text="${@ui.inr(search.budgetInr)} + '/mo budget'">₹2,000</span>
+    <span class="badge" th:text="${search.expertise.label}">Self-managed</span>
+    · <a th:href="@{/}">Change requirements</a>
+  </p>
+
+  <section class="card" aria-labelledby="capacity-h">
+    <h2 id="capacity-h">Capacity guidance</h2>
+    <p class="muted">What your workload roughly needs, so you can sanity-check any plan, including ones HostFit doesn't list.</p>
+    <div class="grid four">
+      <div><div class="stat" th:text="${need.minVcpu()}">2</div><div class="muted small">vCPU minimum</div></div>
+      <div><div class="stat" th:text="${@ui.ram(need.minRamGb())}">3.5 GB</div><div class="muted small">RAM minimum</div></div>
+      <div><div class="stat" th:text="${@ui.num(need.minBandwidthGb())} + ' GB'">458 GB</div><div class="muted small">transfer per month</div></div>
+      <div>
+        <div class="stat"><span th:each="t, it : ${need.preferredTiers()}" th:text="${t.label} + (${it.last} ? '' : ' / ')">VPS</span></div>
+        <div class="muted small">best-fit plan type</div>
+      </div>
+    </div>
+    <ul class="reasons"><li th:each="n : ${need.notes()}" th:text="${n}">note</li></ul>
+  </section>
+
+  <section th:if="${result.recommendations().isEmpty()}" class="card empty" aria-live="polite">
+    <h2>No plan fits all of your requirements</h2>
+    <p th:if="${result.minimumBudgetNeeded() != null}">
+      The cheapest plan that meets your specs costs <strong th:text="${@ui.inr(result.minimumBudgetNeeded())} + '/mo'">₹1,400</strong>.
+      Raise your budget to that, or reduce storage or traffic.
+    </p>
+    <p th:if="${result.minimumBudgetNeeded() == null}">
+      None of the plans in the catalogue meet these specs at any price. Try lowering storage or traffic, or choose a different type of hosting.
+    </p>
+    <a class="btn" th:href="@{/}">Adjust requirements</a>
+  </section>
+
+  <form id="compare-form" th:if="${!result.recommendations().isEmpty()}" th:action="@{/compare}" method="get" th:attr="data-max=${maxCompare}">
+    <input type="hidden" name="req" th:value="${search.id}">
+    <h2 style="margin-top:24px">Best matches</h2>
+    <article class="card rec" th:each="rec, st : ${result.recommendations()}" th:classappend="${st.first} ? 'best'"
+             th:with="entity=${plans.get(rec.plan().id())}">
+      <div>
+        <div class="ring" th:style="'--pct:' + ${rec.score()}" role="img" th:attr="aria-label='Match score ' + ${rec.score()} + ' percent'"><b th:text="${rec.score()} + '%'">92%</b></div>
+        <div class="ring-label">match</div>
+      </div>
+      <div>
+        <h3>
+          <a th:href="@{/plans/{id}(id=${rec.plan().id()})}" th:text="${rec.plan().providerName()} + ' · ' + ${rec.plan().name()}">Provider · Plan</a>
+          <span class="badge badge-ok" th:if="${st.first}">Best match</span>
+        </h3>
+        <div>
+          <span class="badge" th:text="${rec.plan().type().label}">VPS</span>
+          <span class="badge" th:text="${rec.plan().managed()} ? 'Managed' : 'Self-managed'">Managed</span>
+          <span class="badge" th:classappend="${@ui.freshness(entity).css()}" th:text="${@ui.freshness(entity).label()}" th:title="${@ui.freshness(entity).title()}">Live</span>
+        </div>
+        <div class="specs">
+          <span><b th:text="${rec.plan().vcpu()}">2</b> vCPU</span>
+          <span><b th:text="${@ui.ram(rec.plan().ramGb())}">4 GB</b> RAM</span>
+          <span><b th:text="${@ui.storage(rec.plan().storageGb(), rec.plan().storageType())}">80 GB SSD</b></span>
+          <span><b th:text="${@ui.bandwidth(rec.plan().bandwidthGb(), rec.plan().unmetered())}">3 TB</b> transfer</span>
+        </div>
+        <ul class="reasons"><li th:each="r : ${rec.reasons()}" th:text="${r}">reason</li></ul>
+        <details>
+          <summary>How this score was calculated</summary>
+          <div class="bar" th:each="w : ${weights}">
+            <span th:text="${w.key}">Resource fit</span>
+            <i><em th:style="'width:' + ${rec.breakdown().get(w.key) * 100 / w.value} + '%'"></em></i>
+            <span class="right" th:text="${rec.breakdown().get(w.key)} + '/' + ${w.value}">35/35</span>
+          </div>
+        </details>
+      </div>
+      <div class="right">
+        <div class="price"><span th:text="${@ui.inr(rec.plan().priceInr())}">₹1,500</span><small>/mo</small></div>
+        <div class="muted small" th:text="${@ui.inr(rec.yearlyCost())} + '/year'">₹18,000/year</div>
+        <div class="muted small" th:text="'≈ ' + ${@ui.inr(rec.costPer1kVisits())} + ' per 1,000 visits'">₹30 per 1,000 visits</div>
+        <p style="margin-top:10px">
+          <label class="pick"><input type="checkbox" name="ids" th:value="${rec.plan().id()}"> Compare</label>
+        </p>
+        <a class="small" th:if="${entity.url != null}" th:href="${entity.url}" target="_blank" rel="noopener noreferrer">Provider page ↗</a>
+      </div>
+    </article>
+
+    <div class="sticky-bar" id="compare-bar" hidden>
+      <span><strong id="compare-count">0</strong> selected (pick 2 to <span th:text="${maxCompare}">4</span>)</span>
+      <button class="btn" id="compare-btn" type="submit" disabled>Compare side by side</button>
+    </div>
+  </form>
+
+  <section th:if="${!result.alternatives().isEmpty()}" aria-labelledby="alt-h">
+    <h2 id="alt-h" style="margin-top:28px">Slightly over budget</h2>
+    <p class="muted">These meet every spec requirement but cost more than your budget.</p>
+    <div class="table-wrap card" style="padding:0">
+      <table>
+        <thead><tr><th>Plan</th><th>Specs</th><th class="right">Price</th><th class="right">Over budget by</th></tr></thead>
+        <tbody>
+          <tr th:each="alt : ${result.alternatives()}">
+            <td><a th:href="@{/plans/{id}(id=${alt.plan().id()})}" th:text="${alt.plan().providerName()} + ' · ' + ${alt.plan().name()}">Plan</a></td>
+            <td th:text="${alt.plan().vcpu()} + ' vCPU · ' + ${@ui.ram(alt.plan().ramGb())} + ' · ' + ${@ui.storage(alt.plan().storageGb(), alt.plan().storageType())}">specs</td>
+            <td class="right nowrap" th:text="${@ui.inr(alt.plan().priceInr())}">₹1,400</td>
+            <td class="right nowrap"><span class="badge badge-warn" th:text="'+' + ${@ui.inr(alt.overBudgetBy())}">+₹200</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="muted small" style="margin-top:24px">Results are computed live against current plan data. Bookmark this page to see them update as prices change.</p>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

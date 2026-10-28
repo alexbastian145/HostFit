@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Manage plans')}"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap">
+  <div th:replace="~{fragments/layout :: flash}"></div>
+  <div class="actions" style="justify-content:space-between;margin-bottom:12px">
+    <h1 style="margin:0">Hosting plans</h1>
+    <a class="btn" th:href="@{/admin/plans/new}">Add plan</a>
+  </div>
+  <form class="actions" th:action="@{/admin/plans}" method="get" style="margin-bottom:14px">
+    <input type="search" name="q" th:value="${q}" placeholder="Search provider or plan" aria-label="Search" style="max-width:320px">
+    <button class="btn secondary" type="submit">Search</button>
+  </form>
+  <div class="card table-wrap" style="padding:0">
+    <table>
+      <thead><tr><th>Plan</th><th>Type</th><th>Specs</th><th>Price (₹/mo)</th><th>Data</th><th></th></tr></thead>
+      <tbody>
+        <tr th:each="p : ${plans}" th:style="${!p.active} ? 'opacity:.55'">
+          <td><strong th:text="${p.name}">Plan</strong><div class="muted small" th:text="${p.provider.name}">Provider</div>
+            <span class="badge badge-warn" th:if="${!p.active}">Hidden</span></td>
+          <td th:text="${p.planType.label}">VPS</td>
+          <td class="small nowrap" th:text="${p.vcpu} + ' vCPU · ' + ${@ui.ram(p.ramGb)} + ' · ' + ${@ui.storage(p.storageGb, p.storageType)}">specs</td>
+          <td>
+            <form class="inline-form" th:action="@{/admin/plans/{id}/price(id=${p.id})}" method="post">
+              <input type="number" name="price" step="any" min="1" th:value="${p.priceInr.stripTrailingZeros().toPlainString()}" th:attr="aria-label='New price for ' + ${p.name}">
+              <button class="btn small secondary" type="submit">Set</button>
+            </form>
+          </td>
+          <td><span class="badge" th:classappend="${@ui.freshness(p).css()}" th:text="${@ui.freshness(p).label()}">Estimate</span></td>
+          <td class="nowrap">
+            <a class="btn small secondary" th:href="@{/admin/plans/{id}/edit(id=${p.id})}">Edit</a>
+            <form class="inline-form" th:action="@{/admin/plans/{id}/toggle(id=${p.id})}" method="post">
+              <button class="btn small secondary" type="submit" th:text="${p.active} ? 'Hide' : 'Show'">Hide</button></form>
+            <form class="inline-form" th:action="@{/admin/plans/{id}/delete(id=${p.id})}" method="post"
+                  onsubmit="return confirm('Remove this plan and its price history?')">
+              <button class="btn small danger" type="submit">Remove</button></form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Not found')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap">
+  <div class="card empty">
+    <h1>We couldn't find that page</h1>
+    <p class="muted">The plan or page you asked for doesn't exist, or it was removed.</p>
+    <a class="btn" th:href="@{/plans}">Browse plans</a>
+  </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

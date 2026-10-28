@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Something went wrong')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap">
+  <div class="card empty">
+    <h1>Something went wrong</h1>
+    <p class="muted">The request could not be completed<span th:if="${status != null}" th:text="' (error ' + ${status} + ')'"></span>. Please try again.</p>
+    <a class="btn" th:href="@{/}">Back to start</a>
+  </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

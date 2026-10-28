@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Provider')}"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap" style="max-width:640px">
+  <h1 th:text="${providerId == null} ? 'Add provider' : 'Edit provider'">Add provider</h1>
+  <form class="card" th:object="${form}" method="post" novalidate
+        th:action="${providerId == null} ? @{/admin/providers} : @{/admin/providers/{id}(id=${providerId})}">
+    <div class="field"><label for="name">Name</label><input type="text" th:field="*{name}"><div class="field-error" th:errors="*{name}"></div></div>
+    <div class="field"><label for="website">Website</label><input type="url" th:field="*{website}" placeholder="https://…"><div class="field-error" th:errors="*{website}"></div></div>
+    <div class="field"><label for="description">Description</label><input type="text" th:field="*{description}"><div class="field-error" th:errors="*{description}"></div></div>
+    <div class="field"><label class="pick"><input type="checkbox" th:field="*{active}"> Active (its plans appear in recommendations)</label></div>
+    <div class="actions"><button class="btn" type="submit">Save</button><a class="btn secondary" th:href="@{/admin/providers}">Cancel</a></div>
+  </form>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

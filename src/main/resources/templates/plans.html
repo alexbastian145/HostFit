@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Browse plans')}"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap">
+  <h1>Available plans</h1>
+  <form class="card filters" th:action="@{/plans}" method="get">
+    <div><label for="q">Search</label><input type="search" id="q" name="q" th:value="${q}" placeholder="Provider or plan"></div>
+    <div><label for="type">Type</label>
+      <select id="type" name="type"><option value="">All</option>
+        <option th:each="t : ${planTypes}" th:value="${t}" th:text="${t.label}" th:selected="${t == type}">VPS</option></select></div>
+    <div><label for="provider">Provider</label>
+      <select id="provider" name="provider"><option value="">All</option>
+        <option th:each="p : ${providers}" th:value="${p.id}" th:text="${p.name}" th:selected="${p.id == providerId}">Hostinger</option></select></div>
+    <div><label for="maxPrice">Max ₹/month</label><input type="number" id="maxPrice" name="maxPrice" min="0" th:value="${maxPrice}"></div>
+    <div><label for="sort">Sort by</label>
+      <select id="sort" name="sort">
+        <option value="price" th:selected="${sort == 'price'}">Price, low to high</option>
+        <option value="price_desc" th:selected="${sort == 'price_desc'}">Price, high to low</option>
+        <option value="ram" th:selected="${sort == 'ram'}">Most RAM</option>
+        <option value="provider" th:selected="${sort == 'provider'}">Provider</option>
+      </select></div>
+    <button class="btn" type="submit">Filter</button>
+  </form>
+
+  <p class="muted" th:text="${plans.size()} + ' plan(s)'">50 plans</p>
+  <div class="card table-wrap" style="padding:0" th:if="${!plans.isEmpty()}">
+    <table>
+      <thead><tr><th>Plan</th><th>Type</th><th>vCPU</th><th>RAM</th><th>Storage</th><th>Transfer</th><th class="right">Price</th><th>Data</th></tr></thead>
+      <tbody>
+        <tr th:each="p : ${plans}">
+          <td><a th:href="@{/plans/{id}(id=${p.id})}" th:text="${p.name}">Plan</a><div class="muted small" th:text="${p.provider.name}">Provider</div></td>
+          <td><span class="badge" th:text="${p.planType.label}">VPS</span></td>
+          <td th:text="${p.vcpu}">2</td>
+          <td class="nowrap" th:text="${@ui.ram(p.ramGb)}">4 GB</td>
+          <td class="nowrap" th:text="${@ui.storage(p.storageGb, p.storageType)}">80 GB</td>
+          <td class="nowrap" th:text="${@ui.bandwidth(p.bandwidthGb, p.unmetered)}">3 TB</td>
+          <td class="right nowrap"><strong th:text="${@ui.inr(p.priceInr)}">₹1,500</strong>/mo</td>
+          <td><span class="badge" th:classappend="${@ui.freshness(p).css()}" th:text="${@ui.freshness(p).label()}" th:title="${@ui.freshness(p).title()}">Live</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card empty" th:if="${plans.isEmpty()}"><p>No plans match those filters.</p><a class="btn secondary" th:href="@{/plans}">Clear filters</a></div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

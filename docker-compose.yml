@@ -1,0 +1,37 @@
+# Run HostFit with MySQL:  docker compose up --build
+# Then open http://localhost:8080  (admin login: see HOSTFIT_ADMIN_* below)
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: hostfit
+      MYSQL_USER: hostfit
+      MYSQL_PASSWORD: ${DB_PASSWORD:-hostfit}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-change-me-root}
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-change-me-root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: mysql
+      DB_HOST: db
+      DB_NAME: hostfit
+      DB_USER: hostfit
+      DB_PASSWORD: ${DB_PASSWORD:-hostfit}
+      HOSTFIT_ADMIN_USERNAME: ${HOSTFIT_ADMIN_USERNAME:-admin}
+      HOSTFIT_ADMIN_PASSWORD: ${HOSTFIT_ADMIN_PASSWORD:?set HOSTFIT_ADMIN_PASSWORD}
+      HOSTFIT_FX_AUTO_REFRESH: "true"
+    ports:
+      - "8080:8080"
+
+volumes:
+  dbdata:

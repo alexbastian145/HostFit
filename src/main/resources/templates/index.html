@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Find your hosting plan')}"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap">
+  <div th:replace="~{fragments/layout :: flash}"></div>
+  <section class="hero">
+    <h1>Find the hosting plan that fits what you actually need</h1>
+    <p>Tell us what you're hosting, your traffic, storage and budget. HostFit compares
+      <strong th:text="${planCount}">50</strong> plans from <strong th:text="${providerCount}">11</strong> providers
+      and ranks the ones that fit, with the reasoning shown.</p>
+  </section>
+
+  <form class="card" th:action="@{/recommend}" th:object="${form}" method="post" novalidate>
+    <div class="field">
+      <span class="label" id="usecase-label">1. What are you hosting?</span>
+      <div class="choices" role="radiogroup" aria-labelledby="usecase-label">
+        <label class="choice" th:each="u : ${useCases}">
+          <input type="radio" th:field="*{useCase}" th:value="${u}">
+          <span class="choice-body"><strong th:text="${u.label}">Blog</strong><small th:text="${u.description}">desc</small></span>
+        </label>
+      </div>
+      <div class="field-error" th:if="${#fields.hasErrors('useCase')}" th:errors="*{useCase}"></div>
+    </div>
+
+    <div class="grid three">
+      <div class="field">
+        <label for="monthlyVisits">2. Expected visits per month</label>
+        <input type="number" th:field="*{monthlyVisits}" min="1" step="1" inputmode="numeric" placeholder="e.g. 50000">
+        <div class="chips">
+          <button type="button" class="chip" data-target="monthlyVisits" data-fill="1000">1K</button>
+          <button type="button" class="chip" data-target="monthlyVisits" data-fill="10000">10K</button>
+          <button type="button" class="chip" data-target="monthlyVisits" data-fill="50000">50K</button>
+          <button type="button" class="chip" data-target="monthlyVisits" data-fill="250000">250K</button>
+          <button type="button" class="chip" data-target="monthlyVisits" data-fill="1000000">1M</button>
+        </div>
+        <div class="field-error" th:if="${#fields.hasErrors('monthlyVisits')}" th:errors="*{monthlyVisits}"></div>
+      </div>
+      <div class="field">
+        <label for="storageGb">3. Storage needed (GB)</label>
+        <input type="number" th:field="*{storageGb}" min="1" step="1" inputmode="numeric" placeholder="e.g. 50">
+        <div class="chips">
+          <button type="button" class="chip" data-target="storageGb" data-fill="10">10</button>
+          <button type="button" class="chip" data-target="storageGb" data-fill="50">50</button>
+          <button type="button" class="chip" data-target="storageGb" data-fill="100">100</button>
+          <button type="button" class="chip" data-target="storageGb" data-fill="500">500</button>
+        </div>
+        <div class="field-error" th:if="${#fields.hasErrors('storageGb')}" th:errors="*{storageGb}"></div>
+      </div>
+      <div class="field">
+        <label for="budgetInr">4. Monthly budget</label>
+        <div class="input-prefix"><span aria-hidden="true">₹</span>
+          <input type="number" th:field="*{budgetInr}" min="50" step="any" inputmode="decimal" placeholder="e.g. 2000"></div>
+        <div class="chips">
+          <button type="button" class="chip" data-target="budgetInr" data-fill="500">₹500</button>
+          <button type="button" class="chip" data-target="budgetInr" data-fill="1000">₹1,000</button>
+          <button type="button" class="chip" data-target="budgetInr" data-fill="2000">₹2,000</button>
+          <button type="button" class="chip" data-target="budgetInr" data-fill="5000">₹5,000</button>
+        </div>
+        <div class="field-error" th:if="${#fields.hasErrors('budgetInr')}" th:errors="*{budgetInr}"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="label" id="expertise-label">5. Who looks after the server?</span>
+      <div class="choices" role="radiogroup" aria-labelledby="expertise-label">
+        <label class="choice" th:each="x : ${expertiseOptions}">
+          <input type="radio" th:field="*{expertise}" th:value="${x}">
+          <span class="choice-body"><strong th:text="${x.label}">Managed</strong><small th:text="${x.description}">desc</small></span>
+        </label>
+      </div>
+      <div class="field-error" th:if="${#fields.hasErrors('expertise')}" th:errors="*{expertise}"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" type="submit">Recommend plans</button>
+      <a class="btn secondary" th:href="@{/(example=1)}">Try the e-commerce example</a>
+    </div>
+  </form>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

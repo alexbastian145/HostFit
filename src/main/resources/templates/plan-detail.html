@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${plan.name})}"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap">
+  <p><a th:href="@{/plans}">← All plans</a></p>
+  <h1 th:text="${plan.provider.name} + ' · ' + ${plan.name}">Provider · Plan</h1>
+  <p>
+    <span class="badge" th:text="${plan.planType.label}">VPS</span>
+    <span class="badge" th:text="${plan.managed} ? 'Managed' : 'Self-managed'">Managed</span>
+    <span class="badge" th:classappend="${@ui.freshness(plan).css()}" th:text="${@ui.freshness(plan).label()}" th:title="${@ui.freshness(plan).title()}">Live</span>
+    <span class="badge badge-warn" th:if="${!plan.active}">Hidden from recommendations</span>
+  </p>
+
+  <div class="grid two">
+    <section class="card">
+      <h2>Specifications</h2>
+      <table>
+        <tr><th scope="row">vCPU</th><td th:text="${plan.vcpu}">2</td></tr>
+        <tr><th scope="row">RAM</th><td th:text="${@ui.ram(plan.ramGb)}">4 GB</td></tr>
+        <tr><th scope="row">Storage</th><td th:text="${@ui.storage(plan.storageGb, plan.storageType)}">80 GB SSD</td></tr>
+        <tr><th scope="row">Bandwidth</th><td th:text="${@ui.bandwidth(plan.bandwidthGb, plan.unmetered)}">3 TB</td></tr>
+      </table>
+    </section>
+    <section class="card">
+      <h2>Price</h2>
+      <div class="price"><span th:text="${@ui.inr(plan.priceInr)}">₹1,500</span><small>/month</small></div>
+      <p class="muted" th:text="${@ui.yearly(plan.priceInr)} + ' per year'">₹18,000 per year</p>
+      <p class="small muted" th:if="${plan.originalPrice != null and plan.originalCurrency != 'INR'}"
+         th:text="'Listed at ' + ${plan.originalCurrency} + ' ' + ${plan.originalPrice} + ' and converted to INR.'">Listed at USD 20</p>
+      <p class="small muted" th:text="'Source: ' + ${plan.priceSource.label} + ' · last checked ' + ${@ui.ago(plan.priceVerifiedAt)}">Source</p>
+      <a class="btn" th:if="${plan.url != null}" th:href="${plan.url}" target="_blank" rel="noopener noreferrer">View on provider site ↗</a>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:16px">
+    <h2>Price history</h2>
+    <div class="table-wrap">
+      <table th:if="${!history.isEmpty()}">
+        <thead><tr><th>When</th><th class="right">Price</th><th>Source</th></tr></thead>
+        <tbody><tr th:each="h : ${history}">
+          <td th:text="${@ui.when(h.recordedAt)}">date</td>
+          <td class="right" th:text="${@ui.inr(h.priceInr)}">₹1,500</td>
+          <td th:text="${h.source.label}">Crawled</td></tr></tbody>
+      </table>
+    </div>
+    <p class="muted" th:if="${history.isEmpty()}">No history recorded yet.</p>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

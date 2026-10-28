@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Admin login')}"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap" style="max-width:420px">
+  <h1>Admin login</h1>
+  <div class="alert err" role="alert" th:if="${param.error}">Wrong username or password.</div>
+  <div class="alert info" th:if="${param.logout}">You have been logged out.</div>
+  <form class="card" th:action="@{/login}" method="post">
+    <div class="field"><label for="username">Username</label><input type="text" id="username" name="username" autocomplete="username" required autofocus></div>
+    <div class="field"><label for="password">Password</label><input type="password" id="password" name="password" autocomplete="current-password" required></div>
+    <button class="btn" type="submit">Log in</button>
+  </form>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

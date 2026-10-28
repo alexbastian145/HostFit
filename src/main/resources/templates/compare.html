@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Compare plans')}"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap">
+  <h1>Compare plans</h1>
+  <div th:if="${!enough}" class="card empty">
+    <p>Select at least two plans to compare them side by side.</p>
+    <a class="btn" th:href="${search != null} ? @{/results/{id}(id=${search.id})} : @{/plans}">Back</a>
+  </div>
+
+  <div th:if="${enough}" class="card table-wrap" style="padding:0">
+    <table class="compare">
+      <thead>
+        <tr>
+          <th></th>
+          <th th:each="p : ${selected}">
+            <a th:href="@{/plans/{id}(id=${p.id})}" th:text="${p.name}">Plan</a>
+            <div class="muted small" th:text="${p.provider.name}">Provider</div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:if="${evaluations != null}">
+          <th scope="row">Match score</th>
+          <td th:each="p : ${selected}" th:with="ev=${evaluations.get(p.id)}" th:classappend="${ev != null and ev.recommendation() != null and ev.recommendation().score() == bestScore} ? 'best'">
+            <span th:if="${ev != null and ev.recommendation() != null}" th:text="${ev.recommendation().score()} + '%'">92%</span>
+            <span th:if="${ev == null or ev.recommendation() == null}" class="badge badge-bad">Doesn't fit</span>
+          </td>
+        </tr>
+        <tr th:if="${evaluations != null}">
+          <th scope="row">Why not</th>
+          <td th:each="p : ${selected}" th:with="ev=${evaluations.get(p.id)}">
+            <span th:if="${ev != null and !ev.violations().isEmpty()}">
+              <span class="badge badge-bad" th:each="v : ${ev.violations()}" th:text="${v.label}">Over budget</span>
+            </span>
+            <span th:if="${ev == null or ev.violations().isEmpty()}" class="muted">—</span>
+          </td>
+        </tr>
+        <tr><th scope="row">Type</th><td th:each="p : ${selected}" th:text="${p.planType.label}">VPS</td></tr>
+        <tr><th scope="row">Price / month</th>
+          <td th:each="p : ${selected}" th:classappend="${p.id == cheapestId} ? 'best'" th:text="${@ui.inr(p.priceInr)}">₹1,500</td></tr>
+        <tr><th scope="row">Price / year</th><td th:each="p : ${selected}" th:text="${@ui.yearly(p.priceInr)}">₹18,000</td></tr>
+        <tr><th scope="row">vCPU</th><td th:each="p : ${selected}" th:text="${p.vcpu}">2</td></tr>
+        <tr><th scope="row">RAM</th><td th:each="p : ${selected}" th:text="${@ui.ram(p.ramGb)}">4 GB</td></tr>
+        <tr><th scope="row">Storage</th><td th:each="p : ${selected}" th:text="${@ui.storage(p.storageGb, p.storageType)}">80 GB SSD</td></tr>
+        <tr><th scope="row">Bandwidth</th><td th:each="p : ${selected}" th:text="${@ui.bandwidth(p.bandwidthGb, p.unmetered)}">3 TB</td></tr>
+        <tr><th scope="row">Management</th><td th:each="p : ${selected}" th:text="${p.managed} ? 'Managed' : 'Self-managed'">Managed</td></tr>
+        <tr><th scope="row">Price data</th>
+          <td th:each="p : ${selected}"><span class="badge" th:classappend="${@ui.freshness(p).css()}" th:text="${@ui.freshness(p).label()}">Live</span></td></tr>
+        <tr><th scope="row">Provider page</th>
+          <td th:each="p : ${selected}"><a th:if="${p.url != null}" th:href="${p.url}" target="_blank" rel="noopener noreferrer">Open ↗</a><span th:if="${p.url == null}" class="muted">—</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:16px"><a class="btn secondary" th:href="${search != null} ? @{/results/{id}(id=${search.id})} : @{/plans}">← Back</a></p>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

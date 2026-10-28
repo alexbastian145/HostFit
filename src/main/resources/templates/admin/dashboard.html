@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Admin')}"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="wrap">
+  <div th:replace="~{fragments/layout :: flash}"></div>
+  <h1>Admin dashboard</h1>
+  <div class="grid four">
+    <div class="card"><div class="stat" th:text="${activeCount} + '/' + ${planCount}">50/50</div><div class="muted small">active plans</div></div>
+    <div class="card"><div class="stat" th:text="${providerCount}">11</div><div class="muted small">providers</div></div>
+    <div class="card"><div class="stat" th:text="${sourceCount}">2</div><div class="muted small">crawl sources</div></div>
+    <div class="card"><div class="stat" th:text="${attentionCount}">0</div><div class="muted small">prices needing a check</div></div>
+  </div>
+  <div class="actions" style="margin:16px 0">
+    <a class="btn" th:href="@{/admin/plans/new}">Add plan</a>
+    <a class="btn secondary" th:href="@{/admin/plans}">Manage plans</a>
+    <a class="btn secondary" th:href="@{/admin/providers}">Providers</a>
+    <a class="btn secondary" th:href="@{/admin/crawl}">Crawler</a>
+  </div>
+
+  <div class="grid two">
+    <section class="card">
+      <h2>Prices needing attention</h2>
+      <p class="muted small">Estimates and stale prices. Run the crawler or confirm them by hand.</p>
+      <p th:if="${attention.isEmpty()}" class="muted">Everything is verified and fresh.</p>
+      <table th:if="${!attention.isEmpty()}">
+        <tr th:each="p : ${attention}">
+          <td><a th:href="@{/admin/plans/{id}/edit(id=${p.id})}" th:text="${p.provider.name} + ' · ' + ${p.name}">Plan</a></td>
+          <td class="right"><span class="badge" th:classappend="${@ui.freshness(p).css()}" th:text="${@ui.freshness(p).label()}">Estimate</span></td>
+        </tr>
+      </table>
+      <p th:if="${attentionCount > attention.size()}" class="muted small" th:text="'…and ' + ${attentionCount - attention.size()} + ' more'"></p>
+    </section>
+    <section class="card">
+      <h2>Recent crawls</h2>
+      <p th:if="${runs.isEmpty()}" class="muted">No crawl has run yet.</p>
+      <table th:if="${!runs.isEmpty()}">
+        <tr th:each="r : ${runs}">
+          <td th:text="${r.sourceName}">Linode public API</td>
+          <td><span class="badge" th:classappend="${r.status.name() == 'SUCCESS'} ? 'badge-ok' : 'badge-bad'" th:text="${r.status}">SUCCESS</span></td>
+          <td class="muted small" th:text="${@ui.ago(r.startedAt)}">1 h ago</td>
+        </tr>
+      </table>
+    </section>
+  </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
