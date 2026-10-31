@@ -7,16 +7,20 @@
 <main id="main" class="wrap">
   <div th:replace="~{fragments/layout :: flash}"></div>
 
-  <h1>Your recommendations</h1>
-  <p class="muted">
-    <span class="badge" th:text="${search.useCase.label}">E-commerce</span>
-    <span class="badge" th:text="${@ui.num(search.monthlyVisits)} + ' visits/mo'">50,000 visits/mo</span>
-    <span class="badge" th:text="${@ui.num(search.storageGb)} + ' GB storage'">50 GB</span>
-    <span class="badge" th:text="${@ui.inr(search.budgetInr)} + '/mo budget'">₹2,000</span>
-    <span class="badge" th:text="${search.expertise.label}">Self-managed</span>
-    · <a th:href="@{/}">Change requirements</a>
-  </p>
+  <div class="results-head">
+    <h1>Your recommendations</h1>
+    <div class="summary">
+      <span class="badge" th:text="${search.useCase.label}">E-commerce</span>
+      <span class="badge" th:text="${@ui.num(search.monthlyVisits)} + ' visits/mo'">50,000 visits/mo</span>
+      <span class="badge" th:text="${@ui.num(search.storageGb)} + ' GB storage'">50 GB</span>
+      <span class="badge" th:text="${@ui.inr(search.budgetInr)} + '/mo budget'">₹2,000</span>
+      <span class="badge" th:text="${search.expertise.label}">Self-managed</span>
+      <a class="summary-link" th:href="@{/}">Change requirements</a>
+    </div>
+  </div>
 
+  <div class="results-layout">
+  <div class="rail">
   <section class="card" aria-labelledby="capacity-h">
     <h2 id="capacity-h">Capacity guidance</h2>
     <p class="muted">What your workload roughly needs, so you can sanity-check any plan, including ones HostFit doesn't list.</p>
@@ -31,6 +35,9 @@
     </div>
     <ul class="reasons"><li th:each="n : ${need.notes()}" th:text="${n}">note</li></ul>
   </section>
+  </div>
+
+  <div class="results-main">
 
   <section th:if="${result.recommendations().isEmpty()}" class="card empty" aria-live="polite">
     <h2>No plan fits all of your requirements</h2>
@@ -46,7 +53,7 @@
 
   <form id="compare-form" th:if="${!result.recommendations().isEmpty()}" th:action="@{/compare}" method="get" th:attr="data-max=${maxCompare}">
     <input type="hidden" name="req" th:value="${search.id}">
-    <h2 style="margin-top:24px">Best matches</h2>
+    <h2>Best matches</h2>
     <article class="card rec" th:each="rec, st : ${result.recommendations()}" th:classappend="${st.first} ? 'best'"
              th:with="entity=${plans.get(rec.plan().id())}">
       <div>
@@ -115,6 +122,8 @@
   </section>
 
   <p class="muted small" style="margin-top:24px">Results are computed live against current plan data. Bookmark this page to see them update as prices change.</p>
+  </div>
+  </div>
 </main>
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <script th:src="@{/js/app.js}"></script>
