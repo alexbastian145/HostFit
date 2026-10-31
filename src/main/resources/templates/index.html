@@ -6,15 +6,22 @@
 <header th:replace="~{fragments/layout :: nav}"></header>
 <main id="main" class="wrap">
   <div th:replace="~{fragments/layout :: flash}"></div>
-  <section class="hero">
-    <p class="eyebrow">Rule-based · transparent scoring</p>
+  <div class="split">
+  <section class="hero split-intro">
+    <p class="eyebrow">Rule-based, transparent scoring</p>
     <h1>Find the hosting plan that fits what you actually need</h1>
     <p>Tell us what you're hosting, your traffic, storage and budget. HostFit compares
       <strong th:text="${planCount}">50</strong> plans from <strong th:text="${providerCount}">11</strong> providers
       and ranks the ones that fit, with the reasoning shown.</p>
+    <ul class="outcomes">
+      <li><strong>A ranked shortlist</strong>Plans that meet your specs and budget, best match first.</li>
+      <li><strong>The reasoning, not just a score</strong>Every match shows how its score was calculated.</li>
+      <li><strong>Side-by-side comparison</strong>Pick a few plans and compare them line by line.</li>
+    </ul>
+    <p class="small"><a th:href="@{/about}">How the scoring works</a></p>
   </section>
 
-  <form class="card" th:action="@{/recommend}" th:object="${form}" method="post" novalidate>
+  <form class="card form-card" th:action="@{/recommend}" th:object="${form}" method="post" novalidate>
     <div class="field">
       <span class="label" id="usecase-label">1. What are you hosting?</span>
       <div class="choices" role="radiogroup" aria-labelledby="usecase-label">
@@ -28,7 +35,7 @@
 
     <div class="grid three">
       <div class="field">
-        <label for="monthlyVisits">2. Expected visits per month</label>
+        <label for="monthlyVisits">2. Visits per month</label>
         <input type="number" th:field="*{monthlyVisits}" min="1" step="1" inputmode="numeric" placeholder="e.g. 50000">
         <div class="chips">
           <button type="button" class="chip" data-target="monthlyVisits" data-fill="1000">1K</button>
@@ -76,10 +83,11 @@
     </div>
 
     <div class="actions">
-      <button class="btn" type="submit">Recommend plans</button>
-      <a class="btn secondary" th:href="@{/(example=1)}">Try the e-commerce example</a>
+      <button class="btn large" type="submit">Recommend plans</button>
+      <a class="btn secondary large" th:href="@{/(example=1)}">Try the e-commerce example</a>
     </div>
   </form>
+  </div>
 </main>
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <script th:src="@{/js/app.js}"></script>
