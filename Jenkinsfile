@@ -18,6 +18,7 @@ pipeline {
     environment {
         IMAGE = "hostfit"
         TAG   = "${env.BRANCH_NAME ?: 'local'}-${env.BUILD_NUMBER}".replaceAll('[^A-Za-z0-9_.-]', '-')
+        HOSTFIT_ADMIN_PASSWORD = credentials('hostfit-admin-password')
     }
 
     stages {
