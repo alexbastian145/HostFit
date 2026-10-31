@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -154,7 +155,7 @@ class WebFlowTest {
                         .param("priceInr", "999")
                         .param("active", "true"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("/admin/plans"));
+                .andExpect(redirectedUrl("/admin/plans"));
     }
 
     @Test
